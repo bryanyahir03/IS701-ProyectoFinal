@@ -1,14 +1,17 @@
 import { GREEN } from "./params.js";
-import { calculateEAR } from "./utils.js";
+import { calculateEAR, estaDurmiendo } from "./utils.js";
 
 export class Camera {
     constructor(detector) {
         this.detector = detector;
         this.video = document.getElementById('video');
+        this.audio = document.getElementById('audio-alarm');
         this.canvas = document.getElementById('output');
         this.ctx = this.canvas.getContext('2d');
+        this.seconds = document.getElementById('segundos').value;
+        this.threshold = document.getElementById('treshold').value;
         this.earRatios = Array(100).fill(0);
-        this.earChart = this.setupEARChart();
+        this.earChart = this.setupEARChart();        
         this.setupCamera();
 
         return this;
@@ -79,7 +82,6 @@ export class Camera {
 
 
 
-
     drawResults(faces, triangulateMesh, boundingBox) {
         const eyesLabels = ['rightEye', 'leftEye'];
     
@@ -127,21 +129,21 @@ export class Camera {
             if (this.earRatios.length > 100) {
                 this.earRatios.shift();
             }
+
+            // Activar alarma cuando se duerma.
+            if (estaDurmiendo(this.earRatios, this.threshold, this.seconds)) {
+                if (this.audio.paused) {
+                    this.audio.play();
+                }
+            }
+            else if (!this.audio.paused) {
+                this.audio.pause();
+            }
+
             this.earChart.data.datasets[0].data = this.earRatios;
             this.earChart.update();
-
-            console.log(this.earRatios);
-
-            // const rightEyeKeypoints = face.keypoints.filter((keypoint) => keypoint.name && keypoint.name == 'rightEye');
-            // const leftEyeKeypoints = face.keypoints.filter((keypoint) => keypoint.name && keypoint.name == 'leftEye');
-
-            // console.log(rightEyeKeypoints);
-
-            
         }
 
         requestAnimationFrame(() => this.renderPrediction());
     }
-
-
 }
