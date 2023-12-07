@@ -1,0 +1,22 @@
+{
+  "name": "proyecto-final",
+  "version": "1.0.0",
+  "description": "Proyecto Final de la clase IS-701 (Inteligencia Artificial) sobre reconocimiento de emociones y fatiga enfocados en conductores",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bryanyahir03/IS701-ProyectoFinal.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/bryanyahir03/IS701-ProyectoFinal/issues"
+  },
+  "homepage": "https://github.com/bryanyahir03/IS701-ProyectoFinal#readme",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
