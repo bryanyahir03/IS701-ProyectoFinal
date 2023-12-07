@@ -3,49 +3,92 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no">
-        <style>
-            body {
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                height: 100vh;
-                margin: 0;
-            }
-    
-            #container {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-            }
-    
-            #video {
-                max-width: 100%;
-                border: 2px solid #ccc;
-                border-radius: 8px;
-            }
-    
-            #output {
-                margin-top: 10px;
-                max-width: 100%;
-                border: 2px solid #ccc;
-                border-radius: 8px;
-            }
-    
-            #earChart {
-                margin-top: 10px;
-                max-width: 100%;
-                border: 2px solid #ccc;
-                border-radius: 8px;
-            }
-        </style>
-        <!-- <script src="https://cdn.tailwindcss.com"></script>     -->
+        <link rel="stylesheet" href="./css/styles.css">
     </head>
     <body>
-        <div id="container">
-            <video id="video" playsinline></video>
-            <canvas id="output" width="500" height="200"></canvas>
-            <canvas id="earChart" width="500" height="200"></canvas>
+        <div class="container2">
+            <h1 class="text-center text-4xl mb-5"> "Emotion 
+                & Fatigue Monitor"</h1>
         </div>
+    <div class="div1">  
+        <textarea  id="text" rows="10" cols="60" ></textarea>
+        <div >
+            <canvas class="canvas1" id="earChart" width="500" height="200"></canvas>
+        </div>
+        <div class="container">    
+            <video  id="video" playsinline style="visibility: hidden;"></video>
+            <canvas id="output"></canvas>      
+        </div>
+        <div class="emociones">
+            <div class="nombre-emoji">
+                <div class="nombre-emoji">
+                    <div style="color: rgb(11, 250, 35)" class="medidor-label">HAPPY</div>
+                        <div class="progress-container">
+                        <progress class="feliz" min="0" max="100" value="50" id="happy"></progress>
+                        <span  class="emoji">😃</span>
+                        </div>
+                </div>
+                <br>
+                <div class="nombre-emoji">
+                    <div style="color: blue;" class="medidor-label">SAD</div>
+                        <div class="progress-container">
+                        <progress class="triste" min="0" max="100" value="20" id="sad"></progress>
+                        <span  class="emoji">☹️</span>
+                        </div>
+                </div>
+                <br>
+                <div class="nombre-emoji">
+                    <div style="color: red;" class="medidor-label">ANGRY</div>
+                        <div class="progress-container">
+                        <progress class="enojado" min="0" max="100" value="20" id="angry"></progress>
+                        <span  class="emoji">😡</span>
+                        </div>
+                </div>
+                <br>
+                <div class="nombre-emoji">
+                    <div style="color: orangered;" class="medidor-label">SLEEPY</div>
+                        <div class="progress-container">
+                        <progress class="sleepy" min="0" max="100" value="20" id="sleepy"></progress>
+                        <span  class="emoji">😴</span>
+                        </div>
+                </div>
+                <br>
+                <div class="nombre-emoji">
+                    <div style="color: blueviolet;" class="medidor-label">NEUTRAL</div>
+                        <div class="progress-container">
+                        <progress class="neutro" min="0" max="100" value="20" id="neutral"></progress>
+                        <span  class="emoji">🙂</span>
+                        </div>
+                </div>
+                <br>
+                <div class="nombre-emoji">
+                    <div style="color: orange;" class="medidor-label">SURPRISED</div>
+                        <div class="progress-container">
+                        <progress  class="sorprendido" min="0" max="100" value="20" id="surprised"></progress>
+                        <span class="emoji">😲</span>
+                        </div>
+                </div>    
+            </div>
+            <div class="container_input">
+                <label class="text_input" for="treshold">EAR Treshold</label> 
+                <input class="input1" type="range" min="0" max="1" step="0.01" value="0.5" id="treshold">
+                <span class="text_input" id="rangeValue">0.5</span>
+            </div>
+            <div class="container_input2">
+                <label class="text_input" for="segundos">seconds</label>
+                <input class="input2" min="0" type="number"  id="segundos">    
+            </div>   
+        </div>
+       
+        <script>
+            var range = document.getElementById('treshold');
+            var rangeValue = document.getElementById('rangeValue');
+        
+            range.addEventListener('input', function() {
+                rangeValue.textContent = range.value;
+            });
+        </script>
+  
     </body>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-core"></script>
