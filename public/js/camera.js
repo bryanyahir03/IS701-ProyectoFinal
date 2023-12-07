@@ -1,5 +1,9 @@
 import { GREEN } from "./params.js";
-import { calculateEAR, estaDurmiendo } from "./utils.js";
+import { calculateEAR, calculateEmotionAverages, estaDurmiendo } from "./utils.js";
+import vision from "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.3";
+
+const { FaceLandmarker, FilesetResolver, DrawingUtils } = vision;
+
 
 export class Camera {
     constructor(detector) {
@@ -8,8 +12,10 @@ export class Camera {
         this.audio = document.getElementById('audio-alarm');
         this.canvas = document.getElementById('output');
         this.ctx = this.canvas.getContext('2d');
+        this.drawingUtils = new DrawingUtils(this.ctx);
         this.seconds = document.getElementById('segundos').value;
         this.threshold = document.getElementById('treshold').value;
+        this.lastVideoTime = -1;
         this.earRatios = Array(100).fill(0);
         this.earChart = this.setupEARChart();        
         this.setupCamera();
@@ -78,33 +84,45 @@ export class Camera {
         this.canvas.height = videoHeight;
 
         this.canvas.style.transform = 'scaleX(-1)';
+        this.video.style.transform = 'scaleX(-1)';
     }
 
 
 
-    drawResults(faces, triangulateMesh, boundingBox) {
-        const eyesLabels = ['rightEye', 'leftEye'];
+    // drawResults(faces, triangulateMesh, boundingBox) {
+    //     const eyesLabels = ['rightEye', 'leftEye'];
     
-        faces.forEach((face) => {
-            const keypoints = face.keypoints
-                .filter((keypoint) => keypoint.name && eyesLabels.includes(keypoint.name))
-                .map((keypoint) => [keypoint.x, keypoint.y]);
+    //     faces.forEach((face) => {
+    //         const keypoints = face.keypoints
+    //             .filter((keypoint) => keypoint.name && eyesLabels.includes(keypoint.name))
+    //             .map((keypoint) => [keypoint.x, keypoint.y]);
     
-            this.ctx.fillStyle = GREEN;
+    //         this.ctx.fillStyle = GREEN;
     
-            for (let i = 0; i < keypoints.length; i++) {
-                const x = keypoints[i][0];
-                const y = keypoints[i][1];
+    //         for (let i = 0; i < keypoints.length; i++) {
+    //             const x = keypoints[i][0];
+    //             const y = keypoints[i][1];
     
-                this.ctx.beginPath();
-                this.ctx.arc(x, y, 1, 0, 2 * Math.PI);
-                this.ctx.fill();
-            }
-        });
-    }
+    //             this.ctx.beginPath();
+    //             this.ctx.arc(x, y, 1, 0, 2 * Math.PI);
+    //             this.ctx.fill();
+    //         }
+    //     });
+    // }
 
 
     async renderPrediction() {
+        const radio = this.video.videoHeight / video.videoWidth;
+        this.video.style.width = 640 + "px";
+        this.video.style.height = 640 * radio + "px";
+        this.canvas.style.width = 640 + "px";
+        this.canvas.style.height = 640 * radio + "px";
+        this.canvas.width = video.videoWidth;
+        this.canvas.height = video.videoHeight;
+        this.results = null;
+        var faces = null;
+        var blends = null; 
+
         if (this.video.readyState < 2) {
             await new Promise((resolve) => {
                 this.video.onloadeddata = () => {
@@ -113,17 +131,76 @@ export class Camera {
             });
         }
 
-        const faces = await this.detector.estimateFaces(this.video, {flipHorizontal: false});
+        let startTimesMS = performance.now();
+        if (this.lastVideoTime !== this.video.currentTime) {
+            this.lastVideoTime = this.video.currentTime;
+            this.results = this.detector.detectForVideo(video, startTimesMS);
+            faces = this.results.faceLandmarks;
+            blends = this.results.faceBlendshapes;
+        }
 
+        if (this.results && this.results.faceLandmarks) {
+            for (const landmarks of this.results.faceLandmarks) {
+              this.drawingUtils.drawConnectors(
+                landmarks,
+                FaceLandmarker.FACE_LANDMARKS_TESSELATION,
+                { color: "#C0C0C070", lineWidth: 1 }
+              );
+              this.drawingUtils.drawConnectors(
+                landmarks,
+                FaceLandmarker.FACE_LANDMARKS_RIGHT_EYE,
+                { color: "#FF3030" }
+              );
+              this.drawingUtils.drawConnectors(
+                landmarks,
+                FaceLandmarker.FACE_LANDMARKS_RIGHT_EYEBROW,
+                { color: "#FF3030" }
+              );
+              this.drawingUtils.drawConnectors(
+                landmarks,
+                FaceLandmarker.FACE_LANDMARKS_LEFT_EYE,
+                { color: "#30FF30" }
+              );
+              this.drawingUtils.drawConnectors(
+                landmarks,
+                FaceLandmarker.FACE_LANDMARKS_LEFT_EYEBROW,
+                { color: "#30FF30" }
+              );
+              this.drawingUtils.drawConnectors(
+                landmarks,
+                FaceLandmarker.FACE_LANDMARKS_FACE_OVAL,
+                { color: "#E0E0E0" }
+              );
+              this.drawingUtils.drawConnectors(
+                landmarks,
+                FaceLandmarker.FACE_LANDMARKS_LIPS,
+                { color: "#E0E0E0" }
+              );
+              this.drawingUtils.drawConnectors(
+                landmarks,
+                FaceLandmarker.FACE_LANDMARKS_RIGHT_IRIS,
+                { color: "#FF3030" }
+              );
+              this.drawingUtils.drawConnectors(
+                landmarks,
+                FaceLandmarker.FACE_LANDMARKS_LEFT_IRIS,
+                { color: "#30FF30" }
+              );
+            }
+        }
+
+
+
+        // const faces = await this.detector.estimateFaces(this.video, {flipHorizontal: false});
         
-        this.ctx.drawImage(this.video, 0, 0, this.canvas.width, this.canvas.height);
-
+        
+        
         if (faces && faces.length > 0) {
-            this.drawResults(faces, true, true);
+            // this.drawResults(faces, true, true);
 
             const face = faces[0];
 
-            const EARRatio = calculateEAR(face.keypoints);
+            const EARRatio = calculateEAR(face);
             this.earRatios.push(EARRatio);
 
             if (this.earRatios.length > 100) {
@@ -142,6 +219,20 @@ export class Camera {
 
             this.earChart.data.datasets[0].data = this.earRatios;
             this.earChart.update();
+
+            // console.log(detectarEmocion(this.results.faceBlendshapes));
+            // console.log(this.results.faceBlendshapes);
+            // console.log(calculateEmotionAverages(this.results.faceBlendshapes));
+        
+            const emotionsValues = calculateEmotionAverages(this.results.faceBlendshapes);
+
+            document.getElementById('happy').value = emotionsValues.happy;
+            document.getElementById('sad').value = emotionsValues.sad;
+            document.getElementById('angry').value = emotionsValues.angry;
+            // document.getElementById('neutral').value = emotionsValues.neutral;
+            document.getElementById('surprised').value = emotionsValues.surprised;
+
+
         }
 
         requestAnimationFrame(() => this.renderPrediction());
