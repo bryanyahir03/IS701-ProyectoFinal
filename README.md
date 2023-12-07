@@ -12,3 +12,5 @@ Instalar librerias necesarias con el comando: npm install
 
 Ejecutar el proyecto através de la terminal Ubicandose en el directorio donde se
 encuentra el archivo app.js ejecutar con el comando:  ...> node app.js
+
+Ir al navegador: http://localhost:3000
