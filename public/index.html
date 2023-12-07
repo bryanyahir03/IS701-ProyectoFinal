@@ -76,20 +76,19 @@
             </div>
             <div class="container_input2">
                 <label class="text_input" for="segundos">seconds</label>
-                <input class="input2" min="0" type="number"  id="segundos">    
+                <input class="input2" min="0" value="4", type="number" id="segundos">    
             </div>   
         </div>
-       
-        <script>
-            var range = document.getElementById('treshold');
-            var rangeValue = document.getElementById('rangeValue');
-        
-            range.addEventListener('input', function() {
-                rangeValue.textContent = range.value;
-            });
-        </script>
-  
+        <audio src="./audio/alert-alarm-1005.mp3" id="audio-alarm"></audio>
     </body>
+    <script>
+        var range = document.getElementById('treshold');
+        var rangeValue = document.getElementById('rangeValue');
+    
+        range.addEventListener('input', function() {
+            rangeValue.textContent = range.value;
+        });
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-core"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs-converter"></script>
@@ -98,3 +97,4 @@
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/face-landmarks-detection"></script>
     <script type="module" src="./js/index.js"></script>
 </html>
+
