@@ -35,3 +35,16 @@ export function calculateEAR(keypoints) {
 
     return EARRatio;
 }
+
+
+export function estaDurmiendo(arr, threshold, seconds) {
+    const numElements = Math.min(seconds * 5, 100);
+  
+    const startIndex = (arr.length - numElements) % arr.length;
+    const lastValues = arr.slice(startIndex);
+  
+    const estaDormido = lastValues.every(value => value <= threshold);
+  
+    return estaDormido;
+  }
+  
